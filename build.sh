@@ -20,6 +20,11 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}开始构建 ${PROGRAM_NAME}...${NC}"
 
+# 设置Go代理为中国代理
+echo -e "${YELLOW}设置Go代理...${NC}"
+export GOPROXY=https://goproxy.cn,direct
+export GOSUMDB=sum.golang.google.cn
+
 # 构建不同架构的版本
 PLATFORMS=(
     "linux/amd64"

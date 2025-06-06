@@ -190,8 +190,9 @@ func (fm *FrpsManager) Uninstall() {
 	configPath := filepath.Join(ProgramDir, ConfigFile)
 	binaryPath := filepath.Join(ProgramDir, ProgramName)
 	
-	if _, err := os.Stat(InitScript); os.IsNotExist(err) &&
-		_, err := os.Stat(binaryPath); os.IsNotExist(err) {
+	_, err1 := os.Stat(InitScript)
+	_, err2 := os.Stat(binaryPath)
+	if os.IsNotExist(err1) && os.IsNotExist(err2) {
 		fm.Colors["yellow"].Println("frps 没有安装。")
 		return
 	}
