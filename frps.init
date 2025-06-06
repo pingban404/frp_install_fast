@@ -65,6 +65,7 @@ fun_start()
     fi
     fun_load_config
     echo -n "Starting ${ProgramName}(${program_version})..."
+    cd ${ProgramPath}
     ${BIN} -c ${CONFIGFILE} >/dev/null 2>&1 &
     sleep 1
     if ! fun_check_run; then

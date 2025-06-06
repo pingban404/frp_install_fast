@@ -1,0 +1,35 @@
+# 构建产物
+build/
+frps-onekey
+frps-onekey-*
+
+# 日志文件
+*.log
+frps.log
+
+# Go 相关
+*.mod.sum
+
+# 临时文件
+*.tmp
+*.bak
+*.backup.*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 运行时产物
+*.pid
+
+# 证书文件
+*.crt
+*.key
+*.csr
+*.pem 

@@ -344,7 +344,8 @@ func (fm *FrpsManager) selectLogFile() string {
 	if choice == "2" || strings.ToLower(choice) == "disable" {
 		return "/dev/null"
 	}
-	return "./frps.log"
+	// 使用绝对路径而不是相对路径，确保日志文件在正确的目录
+	return filepath.Join(ProgramDir, "frps.log")
 }
 
 // selectBoolOption 选择布尔选项
@@ -474,23 +475,8 @@ func (fm *FrpsManager) downloadAndInstallBinary(downloadSource int) error {
 
 	fm.Colors["green"].Printf("正在下载 %s...\n", filename)
 	
-	// 下载文件
-	resp, err := http.Get(downloadURL)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// 创建临时文件
-	tmpFile, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer tmpFile.Close()
-
-	// 保存文件
-	_, err = io.Copy(tmpFile, resp.Body)
-	if err != nil {
+	// 使用带进度条的下载
+	if err := fm.downloadWithProgress(downloadURL, filename, "下载 frps 二进制文件"); err != nil {
 		return err
 	}
 

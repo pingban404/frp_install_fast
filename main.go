@@ -83,6 +83,14 @@ func main() {
 		manager.Update()
 	case "config":
 		manager.ConfigEdit()
+	case "import-config":
+		if len(os.Args) < 3 {
+			fmt.Println("错误：请指定配置文件路径")
+			fmt.Println("使用方法: frps-onekey import-config <配置文件路径>")
+			fmt.Println("示例: frps-onekey import-config /path/to/your/frps.toml")
+			return
+		}
+		manager.ImportConfig(os.Args[2])
 	case "start":
 		manager.Start()
 	case "stop":
@@ -194,16 +202,22 @@ func (fm *FrpsManager) checkRoot() bool {
 // showUsage 显示使用说明
 func showUsage() {
 	fmt.Println("frps 管理工具")
-	fmt.Println("使用方法: frps-onekey {install|uninstall|update|config|start|stop|restart|status|version}")
+	fmt.Println("使用方法: frps-onekey {install|uninstall|update|config|import-config|start|stop|restart|status|version}")
 	fmt.Println()
 	fmt.Println("命令说明:")
-	fmt.Println("  install   - 安装 frps")
-	fmt.Println("  uninstall - 卸载 frps")
-	fmt.Println("  update    - 更新 frps")
-	fmt.Println("  config    - 编辑配置文件")
-	fmt.Println("  start     - 启动 frps 服务")
-	fmt.Println("  stop      - 停止 frps 服务")
-	fmt.Println("  restart   - 重启 frps 服务")
-	fmt.Println("  status    - 查看 frps 状态")
-	fmt.Println("  version   - 显示版本信息")
+	fmt.Println("  install        - 安装 frps")
+	fmt.Println("  uninstall      - 卸载 frps")
+	fmt.Println("  update         - 更新 frps")
+	fmt.Println("  config         - 编辑配置文件")
+	fmt.Println("  import-config  - 导入自定义配置文件")
+	fmt.Println("  start          - 启动 frps 服务")
+	fmt.Println("  stop           - 停止 frps 服务")
+	fmt.Println("  restart        - 重启 frps 服务")
+	fmt.Println("  status         - 查看 frps 状态")
+	fmt.Println("  version        - 显示版本信息")
+	fmt.Println()
+	fmt.Println("示例:")
+	fmt.Println("  frps-onekey install")
+	fmt.Println("  frps-onekey import-config /path/to/frps.toml")
+	fmt.Println("  frps-onekey config")
 } 

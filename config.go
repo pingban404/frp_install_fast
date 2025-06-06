@@ -184,9 +184,18 @@ func (fm *FrpsManager) downloadInitScript() error {
 
 	fm.Colors["green"].Println("正在下载初始化脚本...")
 	
-	cmd := exec.Command("wget", "-q", InitScriptURL, "-O", InitScript)
-	if err := cmd.Run(); err != nil {
+	// 使用带进度条的下载功能（注意：由于在config.go，需要将downloadWithProgress移到这里或者共享）
+	// 首先创建临时文件，然后移动到目标位置
+	tmpScript := InitScript + ".tmp"
+	
+	if err := fm.downloadWithProgressForScript(InitScriptURL, tmpScript, "下载初始化脚本"); err != nil {
 		return fmt.Errorf("下载初始化脚本失败: %v", err)
+	}
+	
+	// 移动临时文件到目标位置
+	if err := os.Rename(tmpScript, InitScript); err != nil {
+		os.Remove(tmpScript) // 清理临时文件
+		return fmt.Errorf("移动脚本文件失败: %v", err)
 	}
 
 	// 设置执行权限
@@ -196,6 +205,8 @@ func (fm *FrpsManager) downloadInitScript() error {
 
 	return nil
 }
+
+
 
 // setupService 设置服务开机启动
 func (fm *FrpsManager) setupService() error {

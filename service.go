@@ -375,4 +375,129 @@ func (fm *FrpsManager) Update() {
 	} else {
 		fm.Colors["green"].Println("frps 更新成功！")
 	}
+}
+
+// ImportConfig 导入用户指定的配置文件
+func (fm *FrpsManager) ImportConfig(configPath string) {
+	if !fm.checkRoot() {
+		return
+	}
+
+	fm.showBanner()
+	
+	fmt.Println("============== 导入配置文件 ==============")
+	fm.Colors["blue"].Printf("指定的配置文件: %s\n", configPath)
+	
+	// 检查用户指定的配置文件是否存在
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		fm.Colors["red"].Printf("错误：配置文件 %s 不存在！\n", configPath)
+		return
+	}
+	
+	// 检查文件是否可读
+	file, err := os.Open(configPath)
+	if err != nil {
+		fm.Colors["red"].Printf("错误：无法读取配置文件 %s: %v\n", configPath, err)
+		return
+	}
+	file.Close()
+	
+	// 验证配置文件格式（基本检查）
+	if err := fm.validateConfigFile(configPath); err != nil {
+		fm.Colors["red"].Printf("错误：配置文件格式验证失败: %v\n", err)
+		return
+	}
+	
+	fm.Colors["green"].Println("✓ 配置文件验证通过")
+	
+	// 目标配置文件路径
+	targetConfigPath := filepath.Join(ProgramDir, ConfigFile)
+	
+	// 检查目标目录是否存在，不存在则创建
+	if err := os.MkdirAll(ProgramDir, 0755); err != nil {
+		fm.Colors["red"].Printf("错误：创建目录失败: %v\n", err)
+		return
+	}
+	
+	// 备份现有配置文件（如果存在）
+	if _, err := os.Stat(targetConfigPath); err == nil {
+		backupPath := targetConfigPath + ".backup." + fmt.Sprintf("%d", os.Getpid())
+		if err := fm.copyFile(targetConfigPath, backupPath); err != nil {
+			fm.Colors["yellow"].Printf("警告：备份现有配置文件失败: %v\n", err)
+		} else {
+			fm.Colors["green"].Printf("✓ 已备份现有配置文件到: %s\n", backupPath)
+		}
+	}
+	
+	// 复制用户配置文件到目标位置
+	if err := fm.copyFile(configPath, targetConfigPath); err != nil {
+		fm.Colors["red"].Printf("错误：复制配置文件失败: %v\n", err)
+		return
+	}
+	
+	// 设置文件权限
+	if err := os.Chmod(targetConfigPath, 0644); err != nil {
+		fm.Colors["yellow"].Printf("警告：设置文件权限失败: %v\n", err)
+	}
+	
+	fm.Colors["green"].Printf("✓ 配置文件已成功导入到: %s\n", targetConfigPath)
+	
+	// 询问是否重启服务
+	fmt.Print("是否重启 frps 服务以应用新配置？(y/n): ")
+	reader := bufio.NewReader(os.Stdin)
+	choice, _ := reader.ReadString('\n')
+	choice = strings.TrimSpace(strings.ToLower(choice))
+	
+	if choice == "y" || choice == "yes" {
+		if fm.isInstalled() {
+			fm.Restart()
+		} else {
+			fm.Colors["yellow"].Println("frps 服务未运行，请使用 'frps-onekey start' 启动服务")
+		}
+	}
+	
+	fmt.Println("配置文件导入完成！")
+}
+
+// validateConfigFile 验证配置文件格式
+func (fm *FrpsManager) validateConfigFile(configPath string) error {
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		return fmt.Errorf("读取文件失败: %v", err)
+	}
+	
+	configStr := string(content)
+	
+	// 基本的TOML格式检查
+	if !strings.Contains(configStr, "bindPort") && !strings.Contains(configStr, "bind_port") {
+		return fmt.Errorf("配置文件缺少必要的 bindPort 或 bind_port 配置")
+	}
+	
+	// 检查文件是否为空
+	if len(strings.TrimSpace(configStr)) == 0 {
+		return fmt.Errorf("配置文件为空")
+	}
+	
+	// 可以添加更多的验证逻辑
+	// 比如检查TOML语法，检查必要的配置项等
+	
+	return nil
+}
+
+// copyFile 复制文件
+func (fm *FrpsManager) copyFile(src, dst string) error {
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+	
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+	
+	_, err = destFile.ReadFrom(sourceFile)
+	return err
 } 

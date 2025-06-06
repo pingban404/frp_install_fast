@@ -1,0 +1,64 @@
+# 示例 frps.toml 配置文件
+# 这是一个用于测试 import-config 功能的示例配置
+
+bindAddr = "0.0.0.0"
+bindPort = 7000
+
+# udp port used for kcp protocol, it can be same with 'bindPort'.
+# if not set, kcp is disabled in frps.
+kcpBindPort = 7000
+
+# udp port used for quic protocol.
+# if not set, quic is disabled in frps.
+quicBindPort = 7001
+
+# Specify which address proxy will listen for, default value is same with bindAddr
+# proxyBindAddr = "127.0.0.1"
+
+# Pool count in each proxy will keep no more than maxPoolCount.
+transport.maxPoolCount = 5
+
+# If tcp stream multiplexing is used, default is true
+transport.tcpMux = true
+
+# Specify keep alive interval for tcp mux.
+# only valid if tcpMux is true.
+# transport.tcpMuxKeepaliveInterval = 30
+
+# Communication timeout for establishing a connection from frps to frpc
+# transport.connectTimeout = 10
+
+# If you want to support virtual host, you must set the http port for listening (optional)
+# Note: http port and https port can be same with bindPort
+vhostHTTPPort = 80
+vhostHTTPSPort = 443
+
+# Response header timeout(seconds) for vhost http server, default is 60s
+# vhostHTTPTimeout = 60
+
+# Configure the web server to enable the dashboard for frps.
+# dashboard is available only if webServer.port is set.
+webServer.addr = "0.0.0.0"
+webServer.port = 7500
+webServer.user = "admin"
+webServer.password = "admin123"
+
+# console or real logFile path like /usr/local/frps/frps.log
+log.to = "/usr/local/frps/frps.log"
+# trace, debug, info, warn, error
+log.level = "info"
+log.maxDays = 3
+# disable log colors when log.to is console, default is false
+# log.disablePrintColor = false
+
+# auth.method specifies what authentication method to use authenticate frpc with frps.
+# If "token" is specified - token will be read into login message.
+# If "oidc" is specified - OIDC (Open ID Connect) token will be issued using OIDC settings. By default, this value is "token".
+auth.method = "token"
+
+# auth token
+auth.token = "your_custom_token_here"
+
+# If subDomainHost is not empty, you can set subdomain when type is http or https in frpc's configure file
+# When subdomain is test, the host used by routing is test.frps.com
+subDomainHost = "example.com" 
