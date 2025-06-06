@@ -171,6 +171,17 @@ subDomainHost = "%s"
 
 // downloadInitScript 下载初始化脚本
 func (fm *FrpsManager) downloadInitScript() error {
+	// 检查本地是否已有初始化脚本（并且不是空文件）
+	if stat, err := os.Stat(InitScript); err == nil && stat.Size() > 0 {
+		fm.Colors["yellow"].Println("检测到本地已有初始化脚本，跳过下载...")
+		
+		// 设置执行权限确保可运行
+		if err := os.Chmod(InitScript, 0755); err != nil {
+			fm.Colors["yellow"].Printf("设置脚本权限失败: %v\n", err)
+		}
+		return nil
+	}
+
 	fm.Colors["green"].Println("正在下载初始化脚本...")
 	
 	cmd := exec.Command("wget", "-q", InitScriptURL, "-O", InitScript)

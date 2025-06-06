@@ -134,6 +134,7 @@ func (fm *FrpsManager) selectDownloadSource() int {
 		return 1
 	case "exit":
 		os.Exit(1)
+		return 0 // This line will never be reached, but Go requires it
 	default:
 		fmt.Println("-----------------------------------")
 		fm.Colors["yellow"].Println("       您选择了: github")
@@ -449,6 +450,18 @@ func (fm *FrpsManager) performInstall(downloadSource int) error {
 
 // downloadAndInstallBinary 下载并安装二进制文件
 func (fm *FrpsManager) downloadAndInstallBinary(downloadSource int) error {
+	// 检查本地是否已有frps二进制文件（并且不是空文件）
+	binaryPath := filepath.Join(ProgramDir, "frps")
+	if stat, err := os.Stat(binaryPath); err == nil && stat.Size() > 0 {
+		fm.Colors["yellow"].Println("检测到本地已有 frps 二进制文件，跳过下载...")
+		
+		// 设置权限确保可执行
+		if err := os.Chmod(binaryPath, 0755); err != nil {
+			fm.Colors["yellow"].Printf("设置权限失败: %v\n", err)
+		}
+		return nil
+	}
+
 	var baseURL string
 	if downloadSource == 1 {
 		baseURL = GiteeDownloadURL

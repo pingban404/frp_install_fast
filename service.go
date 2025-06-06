@@ -130,11 +130,45 @@ func (fm *FrpsManager) ConfigEdit() {
 		return
 	}
 
-	// 使用系统默认编辑器打开配置文件
-	editor := os.Getenv("EDITOR")
-	if editor == "" {
-		editor = "vi" // 默认使用 vi
+	fmt.Println("============== 编辑配置文件 ==============")
+	fm.Colors["blue"].Printf("配置文件路径: %s\n", configPath)
+	fmt.Println()
+
+	// 选择编辑器的优先级：nano > vim > EDITOR环境变量 > vi
+	var editor string
+	var editorName string
+	
+	// 首先检查是否有 nano
+	if _, err := exec.LookPath("nano"); err == nil {
+		editor = "nano"
+		editorName = "nano"
+		fm.Colors["green"].Println("✓ 检测到 nano 编辑器")
+	} else if _, err := exec.LookPath("vim"); err == nil {
+		editor = "vim"
+		editorName = "vim"
+		fm.Colors["green"].Println("✓ 检测到 vim 编辑器")
+	} else {
+		// 没有nano和vim，检查EDITOR环境变量
+		editor = os.Getenv("EDITOR")
+		if editor == "" {
+			editor = "vi" // 最后默认使用 vi
+			editorName = "vi"
+		} else {
+			editorName = editor
+		}
+		fm.Colors["yellow"].Printf("! nano/vim 不可用，使用 %s 编辑器\n", editorName)
 	}
+
+	fmt.Println()
+	fm.Colors["blue"].Printf("使用 %s 打开配置文件...\n", editorName)
+	if editorName == "nano" {
+		fm.Colors["green"].Println("提示: 按 Ctrl+X 保存并退出")
+	} else if editorName == "vim" {
+		fm.Colors["green"].Println("提示: 按 :wq 保存并退出")
+	} else {
+		fm.Colors["green"].Println("提示: 请按照编辑器的帮助说明保存并退出")
+	}
+	fmt.Println()
 
 	cmd := exec.Command(editor, configPath)
 	cmd.Stdin = os.Stdin
@@ -187,7 +221,6 @@ func (fm *FrpsManager) Uninstall() {
 	fm.showBanner()
 	
 	// 检查是否已安装
-	configPath := filepath.Join(ProgramDir, ConfigFile)
 	binaryPath := filepath.Join(ProgramDir, ProgramName)
 	
 	_, err1 := os.Stat(InitScript)

@@ -1,19 +1,10 @@
 package main
 
 import (
-	"bufio"
-	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/fatih/color"
 )
