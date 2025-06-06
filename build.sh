@@ -5,7 +5,7 @@
 set -e
 
 PROGRAM_NAME="frps-onekey"
-VERSION="1.0.7"
+VERSION="1.0.8"
 BUILD_DIR="build"
 
 # 清理构建目录

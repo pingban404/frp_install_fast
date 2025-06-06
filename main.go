@@ -11,7 +11,7 @@ import (
 
 const (
 	ProgramName    = "frps"
-	Version        = "1.0.7"
+	Version        = "1.0.8"
 	ProgramDir     = "/usr/local/frps"
 	ConfigFile     = "frps.toml"
 	InitScript     = "/etc/init.d/frps"
